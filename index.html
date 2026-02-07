@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Toxic Valentine</title>
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+body{
+  height:100vh;
+  background: radial-gradient(circle at top,#ffe0ec,#f6a5c0);
+  display:flex;justify-content:center;align-items:center;
+  overflow:hidden;transition:background 0.8s ease;
+  font-family:"Playfair Display", serif;
+}
+.screen{
+    position:absolute;
+    inset:0;display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    transition:all 0.4s;
+}
+.hidden{
+    display:none;
+}
+h1{
+    text-align:center;
+    font-size:3rem;
+    color:#3a0b1f;
+    margin-bottom:30px;
+    transition:all 0.4s ease;
+}
+.button-group{
+  display:flex;
+  gap:30px;
+  margin-top:20px;
+}
+button{
+  padding:14px 46px;
+  font-size:1.1rem;
+  border-radius:40px;
+  border:none;cursor:pointer;
+  transition:all 0.3s ease;
+}
+#yesBtn{
+    background:#ff4b87;
+    color:white;
+}
+#noBtn{
+    background:#1f1f1f;
+    color:white;
+}
+#goBack{
+    background:black;
+    color:white;
+    padding:10px 30px;
+    font-size:1rem;
+    border-radius:20px;
+}
+button:hover{
+    transform:scale(1.05);
+}
+/* Eyes styling */
+.eyes{
+  position:absolute;
+  top:120px;
+  left:50%;
+  transform:translateX(-50%);
+  display:flex;
+  gap:50px;
+  z-index:5;
+}
+
+.eye-wrap{
+    position:relative;
+}
+.eye{
+    width:70px;
+    height:70px;
+    background:#fff;
+    border-radius:50%;
+    position:relative;
+    overflow:hidden;
+    box-shadow:inset 0 0 20px rgba(0,0,0,0.1);
+}
+.pupil{
+    width:22px;
+    height:22px;
+    background:#000;
+    border-radius:50%;
+    position:absolute;
+    top:50%;left:50%;
+    transform:translate(-50%,-50%);
+    transition:all 0.3s ease;
+}
+.eyebrow{
+    width:50px;
+    height:14px;
+    border-top:5px solid #3a0b1f;
+    border-radius:50%;
+    position:absolute;
+    top:-18px;
+    left:50%;
+    transform:translateX(-50%);
+    transition:all 0.4s ease;
+}
+.stage-0 .eyebrow{
+    transform:translateX(-50%) rotate(0deg);
+}
+.stage-1 .eyebrow{
+    transform:translateX(-50%) rotate(10deg);
+}
+.stage-2 .eyebrow{
+    transform:translateX(-50%) rotate(20deg);
+}
+.stage-3 .eyebrow{
+    transform:translateX(-50%) rotate(35deg);
+}
+.stage-4 .eyebrow{
+    transform:translateX(-50%) rotate(60deg);
+}
+/* Pupil colors based on eye movement intensity */
+.pupil.anger-1{background:#8b0000;}
+.pupil.anger-2{background:#a00000;}
+.pupil.anger-3{background:#b30000;}
+.pupil.anger-4{background:#cc0000;}
+.pupil.rage{background:#ff0000;box-shadow:0 0 10px #ff0000;}
+
+/* Full screen blast effects */
+.full-red{
+    background:#650000 !important;
+}
+
+/* Blast explosion animation */
+.blast-container{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:100;
+}
+.particle{
+    position:absolute;
+    border-radius:50%;
+    animation:particleFly 1.5s ease-out forwards;
+}
+@keyframes particleFly{
+    0%{
+        opacity:1;
+        transform:translate(0,0) scale(1);
+    }
+    100%{
+        opacity:0;
+        transform:translate(var(--tx),var(--ty)) scale(0);
+    }
+}
+
+/* Screen shake */
+.shake{
+    animation:shake 0.5s ease-in-out;
+}
+@keyframes shake{
+    0%,100%{transform:translateX(0);}
+    10%,30%,50%,70%,90%{transform:translateX(-10px);}
+    20%,40%,60%,80%{transform:translateX(10px);}
+}
+
+/* Flash effect */
+.flash{
+    animation:flash 0.8s ease-out;
+}
+@keyframes flash{
+    0%{background:radial-gradient(circle,white,#ff0000,#000);opacity:1;}
+    100%{background:radial-gradient(circle,#ff0000,#300);opacity:0.8;}
+}
+
+/* Yes screen */
+#yesScreen img{
+    width:280px;
+    border-radius:20px;
+    margin-top:20px;
+    animation:bounceIn 0.6s ease;
+}
+@keyframes bounceIn{
+    0%{transform:scale(0);opacity:0;}
+    50%{transform:scale(1.2);}
+    100%{transform:scale(1);opacity:1;}
+}
+
+/* Hearts animation */
+.hearts-container{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:50;
+}
+.heart{
+    position:absolute;
+    font-size:30px;
+    animation:floatHeart 2s ease-out forwards;
+    opacity:0;
+}
+@keyframes floatHeart{
+    0%{opacity:1;transform:translateY(0) rotate(0deg);}
+    100%{opacity:0;transform:translateY(-200px) rotate(20deg);}
+}
+
+/* Eyes container for blast screen */
+.blast-eyes{
+    position:absolute;
+    top:80px;
+    left:50%;
+    transform:translateX(-50%);
+    display:flex;
+    gap:50px;
+    z-index:5;
+}
+.blast-eyes .eye{
+    width:100px;
+    height:100px;
+    animation:pulseEye 0.3s ease infinite;
+}
+@keyframes pulseEye{
+    0%,100%{transform:scale(1);}
+    50%{transform:scale(1.1);}
+}
+</style>
+</head>
+<body>
+
+<!-- Particle containers -->
+<div class="blast-container" id="blastContainer"></div>
+<div class="hearts-container" id="heartsContainer"></div>
+
+<!-- 1. Main Screen -->
+<div id="mainScreen" class="screen stage-0">
+  <h1 id="mainText">Will you be my Valentine?</h1>
+  <div class="button-group">
+    <button id="yesBtn">Yes</button>
+    <button id="noBtn">No</button>
+  </div>
+  <div class="eyes">
+    <div class="eye-wrap"><div class="eyebrow"></div><div class="eye"><div class="pupil"></div></div></div>
+    <div class="eye-wrap"><div class="eyebrow"></div><div class="eye"><div class="pupil"></div></div></div>
+  </div>
+</div>
+
+<!-- 2. Yes Screen -->
+<div id="yesScreen" class="screen hidden">
+  <h1>Thank you for being my Valentine</h1>
+  <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExMjJicXB6bWU4d2V6dnA0bWQzM3E5OWZwbno2NGcycmZ1ZGY1bWNuaSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/SYo1DFS8NLhhqzzjMU/giphy.gif">
+</div>
+
+<!-- 3. No Blast Screen -->
+<div id="noBlastScreen" class="screen hidden">
+  <h1 id="blastText" style="color:#ff0000;font-family:Impact, sans-serif;font-size:2.5rem;">You better choose YES this time!</h1>
+  <button id="goBack">Go Back</button>
+  <div class="blast-eyes">
+    <div class="eye-wrap"><div class="eyebrow"></div><div class="eye"><div class="pupil"></div></div></div>
+    <div class="eye-wrap"><div class="eyebrow"></div><div class="eye"><div class="pupil"></div></div></div>
+  </div>
+</div>
+
+<script>
+let clickCount = 0;
+let isBlastActive = false;
+let eyeMovementIntensity = 0;
+
+// Elements
+const mainScreen = document.getElementById("mainScreen");
+const yesScreen = document.getElementById("yesScreen");
+const noBlastScreen = document.getElementById("noBlastScreen");
+const yesBtn = document.getElementById("yesBtn");
+const noBtn = document.getElementById("noBtn");
+const goBackBtn = document.getElementById("goBack");
+const mainText = document.getElementById("mainText");
+const blastContainer = document.getElementById("blastContainer");
+const heartsContainer = document.getElementById("heartsContainer");
+const mainEyes = mainScreen.querySelectorAll(".pupil");
+const mainEyebrows = mainScreen.querySelectorAll(".eyebrow");
+const blastEyes = noBlastScreen.querySelectorAll(".pupil");
+const blastEyebrows = noBlastScreen.querySelectorAll(".eyebrow");
+
+// Advanced eye tracking with color intensity based on cursor movement
+function setupEyeTracking(eyes) {
+    let lastX = 0, lastY = 0;
+    let intensity = 0;
+    
+    document.addEventListener("mousemove", (e) => {
+        if (isBlastActive) return;
+        
+        const dx = e.clientX - lastX;
+        const dy = e.clientY - lastY;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        
+        // Calculate movement intensity (0-4 scale)
+        intensity = Math.min(4, Math.floor(distance / 50));
+        eyeMovementIntensity = intensity;
+        
+        // Update pupil colors based on movement
+        eyes.forEach(p => {
+            // Remove existing anger classes
+            p.classList.remove('anger-1', 'anger-2', 'anger-3', 'anger-4', 'rage');
+            
+            if (intensity > 0) {
+                p.classList.add(`anger-${intensity}`);
+            }
+            
+            const r = p.parentElement.getBoundingClientRect();
+            const x = e.clientX - r.left - r.width / 2;
+            const y = e.clientY - r.top - r.height / 2;
+            const angle = Math.atan2(y, x);
+            const moveDistance = 10 + intensity * 3;
+            
+            p.style.transform = `translate(${Math.cos(angle) * moveDistance}px, ${Math.sin(angle) * moveDistance}px)`;
+        });
+        
+        // Update eyebrows based on intensity
+        if (clickCount > 0) {
+            const eyebrowAngle = Math.min(60, clickCount * 15 + intensity * 5);
+            mainEyebrows.forEach(eb => {
+                eb.style.transform = `translateX(-50%) rotate(${eyebrowAngle}deg)`;
+            });
+        }
+        
+        lastX = e.clientX;
+        lastY = e.clientY;
+    });
+}
+
+setupEyeTracking(mainEyes);
+
+// Create explosion particles
+function createExplosion(x, y) {
+    const colors = ['#ff0000', '#ff4444', '#ff6666', '#ffaa00', '#ff8800', '#ff3300', '#fff'];
+    const particleCount = 50;
+    
+    for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        
+        const angle = (Math.PI * 2 * i) / particleCount + Math.random() * 0.5;
+        const velocity = 100 + Math.random() * 300;
+        const size = 5 + Math.random() * 15;
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        
+        particle.style.cssText = `
+            left: ${x}px;
+            top: ${y}px;
+            width: ${size}px;
+            height: ${size}px;
+            background: ${color};
+            --tx: ${Math.cos(angle) * velocity}px;
+            --ty: ${Math.sin(angle) * velocity}px;
+        `;
+        
+        blastContainer.appendChild(particle);
+        
+        setTimeout(() => particle.remove(), 1500);
+    }
+}
+
+// Create hearts for yes screen
+function createHearts() {
+    const emojis = ['❤️', '💕', '💗', '💖', '💓', '💘'];
+    
+    for (let i = 0; i < 20; i++) {
+        setTimeout(() => {
+            const heart = document.createElement('div');
+            heart.className = 'heart';
+            heart.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.top = '100vh';
+            heartsContainer.appendChild(heart);
+            
+            setTimeout(() => heart.remove(), 2000);
+        }, i * 150);
+    }
+}
+
+// Move No button safely
+function moveNoButton() {
+    const btnWidth = noBtn.offsetWidth;
+    const btnHeight = noBtn.offsetHeight;
+    const margin = 20;
+    const maxX = window.innerWidth - btnWidth - margin;
+    const maxY = window.innerHeight - btnHeight - margin;
+    const newX = Math.random() * maxX + margin;
+    const newY = Math.random() * maxY + margin;
+    
+    noBtn.style.position = "fixed";
+    noBtn.style.left = `${Math.min(newX, maxX)}px`;
+    noBtn.style.top = `${Math.min(newY, maxY)}px`;
+}
+
+// Yes button click
+yesBtn.addEventListener("click", () => {
+    mainScreen.classList.add("hidden");
+    yesScreen.classList.remove("hidden");
+    createHearts();
+});
+
+// No button click with blast effect
+noBtn.addEventListener("click", () => {
+    clickCount++;
+    
+    if (clickCount < 5) {
+        moveNoButton();
+        yesBtn.style.transform = `scale(${1 + 0.1 * clickCount})`;
+        mainScreen.className = `screen stage-${clickCount}`;
+        
+        // Update pupil to rage color
+        mainEyes.forEach(p => {
+            p.classList.remove('anger-1', 'anger-2', 'anger-3', 'anger-4');
+            p.classList.add('rage');
+        });
+        
+        // Small screen shake
+        mainScreen.classList.add('shake');
+        setTimeout(() => mainScreen.classList.remove('shake'), 500);
+        
+    } else {
+        // Trigger massive blast
+        triggerBlast();
+    }
+});
+
+// Blast function
+function triggerBlast() {
+    isBlastActive = true;
+    
+    // Hide main screen, show blast screen
+    mainScreen.classList.add("hidden");
+    noBlastScreen.classList.remove("hidden");
+    
+    // Create explosion at center
+    createExplosion(window.innerWidth / 2, window.innerHeight / 2);
+    
+    // Multiple explosions
+    setTimeout(() => createExplosion(window.innerWidth * 0.3, window.innerHeight * 0.4), 100);
+    setTimeout(() => createExplosion(window.innerWidth * 0.7, window.innerHeight * 0.6), 150);
+    setTimeout(() => createExplosion(window.innerWidth * 0.5, window.innerHeight * 0.3), 200);
+    
+    // Flash effect
+    document.body.classList.add("flash");
+    setTimeout(() => document.body.classList.remove("flash"), 800);
+    
+    // Screen shake
+    noBlastScreen.classList.add('shake');
+    setTimeout(() => noBlastScreen.classList.remove('shake'), 500);
+    
+    // Extreme eyebrow angle
+    blastEyebrows.forEach(eb => {
+        eb.style.transform = "translateX(-50%) rotate(90deg)";
+        eb.style.borderTopColor = "#ff0000";
+        eb.style.borderTopWidth = "8px";
+    });
+    
+    // Rage pupils
+    blastEyes.forEach(p => {
+        p.style.background = "#ff0000";
+        p.style.boxShadow = "0 0 15px #ff0000";
+        p.style.width = "30px";
+        p.style.height = "30px";
+    });
+    
+    // Pulse eyes animation
+    blastEyes.forEach(p => {
+        p.parentElement.classList.add('pulsing');
+    });
+}
+
+// Go Back button
+goBackBtn.addEventListener("click", () => {
+    isBlastActive = false;
+    
+    // Hide blast screen, show main screen
+    noBlastScreen.classList.add("hidden");
+    mainScreen.classList.remove("hidden");
+    
+    // Clear particles
+    blastContainer.innerHTML = '';
+    
+    // Reset main screen state
+    mainText.innerText = "Will you be my Valentine?";
+    mainScreen.className = "screen stage-0";
+    yesBtn.style.transform = "scale(1)";
+    noBtn.style.position = "relative";
+    noBtn.style.left = "0px";
+    noBtn.style.top = "0px";
+    
+    // Reset eyes
+    mainEyes.forEach(p => {
+        p.style.background = "#000";
+        p.style.boxShadow = "none";
+        p.style.width = "22px";
+        p.style.height = "22px";
+        p.classList.remove('anger-1', 'anger-2', 'anger-3', 'anger-4', 'rage');
+        p.style.transform = "translate(-50%, -50%)";
+    });
+    
+    // Reset eyebrows
+    mainEyebrows.forEach(eb => {
+        eb.style.transform = "translateX(-50%) rotate(0deg)";
+        eb.style.borderTopColor = "#3a0b1f";
+        eb.style.borderTopWidth = "5px";
+    });
+    
+    // Reset blast screen eyes
+    blastEyebrows.forEach(eb => {
+        eb.style.transform = "translateX(-50%) rotate(0deg)";
+        eb.style.borderTopColor = "#3a0b1f";
+        eb.style.borderTopWidth = "5px";
+    });
+    
+    blastEyes.forEach(p => {
+        p.style.background = "#000";
+        p.style.boxShadow = "none";
+        p.style.width = "22px";
+        p.style.height = "22px";
+        p.style.transform = "translate(-50%, -50%)";
+    });
+    
+    document.body.classList.remove("full-red", "flash");
+    clickCount = 0;
+});
+
+// Eye tracking for blast screen (fixed center look)
+function setupBlastEyeTracking(eyes) {
+    document.addEventListener("mousemove", (e) => {
+        if (!isBlastActive) return;
+        
+        eyes.forEach(p => {
+            // Keep eyes fixed looking at center with slight movement
+            const r = p.parentElement.getBoundingClientRect();
+            const x = e.clientX - r.left - r.width / 2;
+            const y = e.clientY - r.top - r.height / 2;
+            const maxMove = 5;
+            const angle = Math.atan2(y, x);
+            
+            p.style.transform = `translate(${Math.cos(angle) * maxMove}px, ${Math.sin(angle) * maxMove}px)`;
+        });
+    });
+}
+
+setupBlastEyeTracking(blastEyes);
+
+// Prevent text selection during chaos
+document.addEventListener('selectstart', (e) => {
+    if (isBlastActive || clickCount > 0) {
+        e.preventDefault();
+    }
+});
+</script>
+</body>
+</html>
+
